@@ -5,7 +5,7 @@ const { Initializer, api } = require('actionhero')
 module.exports = class SwaggerPlugin extends Initializer {
   constructor () {
     super()
-    this.name = 'swaggerJson'
+    this.name = 'swagger'
     this.loadPriority = 1000
     this.startPriority = 1000
   }
