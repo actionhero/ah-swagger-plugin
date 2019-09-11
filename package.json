@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "description": "A swagger plugin for the actionhero servers",
   "scripts": {
+    "pretest": "standard",
     "test": "jest"
   },
   "repository": {
@@ -27,6 +28,21 @@
   },
   "homepage": "https://github.com/actionhero/ah-swagger-plugin#readme",
   "devDependencies": {
-    "actionhero": "^19.2.2"
+    "actionhero": "^19.2.2",
+    "jest": "^24.9.0",
+    "standard": "^14.1.0"
+  },
+  "standard": {
+    "globals": [
+      "fetch",
+      "FormData",
+      "confirm",
+      "before",
+      "after",
+      "it",
+      "describe",
+      "beforeEach",
+      "afterEach"
+    ]
   }
 }
