@@ -1,0 +1,32 @@
+{
+  "author": "Piyush Aggarwal <piyushagwl007@gmail.com>",
+  "name": "ah-swagger-plugin",
+  "version": "0.0.1",
+  "description": "A swagger plugin for the actionhero servers",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/actionhero/ah-swagger-plugin.git"
+  },
+  "keywords": [
+    "actionhero",
+    "swagger",
+    "plugins"
+  ],
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "peerDependencies": {
+    "actionhero": ">=18.0.0"
+  },
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/actionhero/ah-swagger-plugin/issues"
+  },
+  "homepage": "https://github.com/actionhero/ah-swagger-plugin#readme",
+  "devDependencies": {
+    "actionhero": "^19.2.2"
+  }
+}
