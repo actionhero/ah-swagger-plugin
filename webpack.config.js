@@ -1,6 +1,8 @@
 const path = require('path')
 const webpack = require('webpack')
-
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const devMode = process.env.NODE_ENV !== 'production'
 module.exports = {
   entry: {
     app: ['babel-polyfill', path.join(__dirname, 'public-src', 'index.js')]
@@ -16,21 +18,47 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader']
+        use: [{
+          loader: MiniCssExtractPlugin.loader,
+          options: {
+            // you can specify a publicPath here
+            // by default it uses publicPath in webpackOptions.output
+            publicPath: (resourcePath, context) => {
+              // publicPath is the relative path of the resource to the context
+              // e.g. for ./css/admin/main.css the publicPath will be ../../
+              // while for ./css/main.css the publicPath will be ../
+              return path.relative(path.join(__dirname, 'public-src/swagger'), context) + '/'
+            },
+            hmr: devMode
+          }
+        }, 'css-loader']
       }
     ]
   },
   resolve: { extensions: ['*', '.js', '.jsx', '.html'] },
   output: {
     path: path.resolve(__dirname, 'public/swagger'),
-    publicPath: '/public/swagger',
-    filename: 'bundle.js'
+    publicPath: devMode ? '../../public/swagger' : '',
+    filename: '[name]-bundle.min.js'
   },
   devServer: {
-    contentBase: path.join(__dirname, 'public/swagger'),
+    contentBase: path.join(__dirname, 'public-src/public'),
     port: 3000,
     publicPath: 'http://localhost:3000/public/swagger',
     hotOnly: true
   },
-  plugins: [new webpack.HotModuleReplacementPlugin()]
+  plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+    new HtmlWebpackPlugin({
+      filename: 'index.html',
+      template: path.join(__dirname, 'public-src/public/index.html')
+    }),
+    new MiniCssExtractPlugin({
+      // Options similar to the same options in webpackOptions.output
+      // all options are optional
+      filename: devMode ? '[name].css' : '[name].[hash].css',
+      chunkFilename: devMode ? '[id].css' : '[id].[hash].css',
+      ignoreOrder: false // Enable to remove warnings about conflicting order
+    })
+  ]
 }
