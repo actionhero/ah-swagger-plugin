@@ -5,7 +5,9 @@
   "description": "A swagger plugin for the actionhero servers",
   "scripts": {
     "pretest": "standard",
-    "test": "jest"
+    "test": "jest",
+    "start": "webpack-dev-server --mode development",
+    "build":"webpack --mode production"
   },
   "repository": {
     "type": "git",
@@ -28,9 +30,20 @@
   },
   "homepage": "https://github.com/actionhero/ah-swagger-plugin#readme",
   "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/preset-react": "^7.0.0",
     "actionhero": "^19.2.2",
+    "babel-loader": "^8.0.6",
+    "babel-polyfill": "^6.26.0",
     "jest": "^24.9.0",
-    "standard": "^14.1.0"
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-hot-loader": "^4.12.12",
+    "standard": "^14.1.0",
+    "webpack": "^4.39.3",
+    "webpack-cli": "^3.3.7",
+    "webpack-dev-server": "^3.8.0"
   },
   "standard": {
     "globals": [
