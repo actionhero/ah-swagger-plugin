@@ -2,6 +2,8 @@ const path = require('path')
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+
 const devMode = process.env.NODE_ENV !== 'production'
 module.exports = {
   entry: {
@@ -38,7 +40,7 @@ module.exports = {
   resolve: { extensions: ['*', '.js', '.jsx', '.html'] },
   output: {
     path: path.resolve(__dirname, 'public/swagger'),
-    publicPath: devMode ? '../../public/swagger' : '',
+    publicPath: devMode ? '../../public/swagger' : '/swagger/',
     filename: '[name]-bundle.min.js'
   },
   devServer: {
@@ -48,6 +50,7 @@ module.exports = {
     hotOnly: true
   },
   plugins: [
+    new CleanWebpackPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new HtmlWebpackPlugin({
       filename: 'index.html',
