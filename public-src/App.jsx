@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { lazy, Suspense } from 'react'
 import { hot } from 'react-hot-loader'
-import SwaggerUI from 'swagger-ui-react'
 import 'swagger-ui-react/swagger-ui.css'
 
 function App () {
+  const SwaggerComponent = lazy(() => import('swagger-ui-react'))
   return (
-    <SwaggerUI url='https://petstore.swagger.io/v2/swagger.json' />
+    <Suspense fallback={<h2>Loading Swagger Plugin...</h2>}>
+      <SwaggerComponent url='https://petstore.swagger.io/v2/swagger.json' />
+    </Suspense>
   )
 }
 
