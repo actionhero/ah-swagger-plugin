@@ -5,6 +5,25 @@ const actionHeroInstanceIndexPath = require.resolve('actionhero', {
 })
 const { Initializer, api } = require(actionHeroInstanceIndexPath)
 
+const buildPath = (route, action, parameters, tags) => {
+  const operationId = route ? route.action : action.name
+  const info = {
+    summary: action.summary || '',
+    description: action.description || '',
+    operationId: operationId,
+    parameters: parameters,
+    tags: (Array.isArray(tags) && tags.length > 0 ? tags : undefined)
+  }
+
+  if (action.responseSchemas) {
+    // TODO: We'll assign the whole thing, but there are swagger bugs/limitations with inline
+    // schemas so we'll have to think of an elegant way to reference schemas instead if we
+    // want to demonstrate multiple types of responses e.g. 300's, 400's, etc.
+    info.responses = action.responseSchemas
+  }
+  return info
+}
+
 module.exports = class SwaggerPlugin extends Initializer {
   constructor () {
     super()
@@ -14,8 +33,8 @@ module.exports = class SwaggerPlugin extends Initializer {
   }
 
   async initialize () {
-    let config = api.config
-    let actions = api.actions.actions
+    const config = api.config
+    const actions = api.actions.actions
 
     let actionUrl = 'api'
     let serverIp = api.utils.getExternalIPAddress()
@@ -34,28 +53,9 @@ module.exports = class SwaggerPlugin extends Initializer {
       serverPort = config.swagger.portOverride
     }
 
-    let buildPath = (route, action, parameters, tags) => {
-      let operationId = route ? route.action : action.name
-      let info = {
-        summary: action.summary || '',
-        description: action.description || '',
-        operationId: operationId,
-        parameters: parameters,
-        tags: (Array.isArray(tags) && tags.length > 0 ? tags : undefined)
-      }
-
-      if (action.responseSchemas && typeof action.responseSchemas !== 'undefined') {
-        // TODO: We'll assign the whole thing, but there are swagger bugs/limitations with inline
-        // schemas so we'll have to think of an elegant way to reference schemas instead if we
-        // want to demonstrate multiple types of responses e.g. 300's, 400's, etc.
-        info.responses = action.responseSchemas
-      }
-      return info
-    }
-
     api.swagger = {
       documentation: {
-        swagger: '2.0',
+        openapi: '3.0.0',
         info: {
           title: config.general.serverName,
           description: config.general.welcomeMessage,
@@ -73,21 +73,21 @@ module.exports = class SwaggerPlugin extends Initializer {
         parameters: {
           apiVersion: {
             name: 'apiVersion',
-            'in': 'path',
+            in: 'path',
             required: true,
             type: 'string'
           }
         }
       },
       build: () => {
-        let verbs = api.routes.verbs
+        const verbs = api.routes.verbs
 
-        for (let actionName in actions) {
-          for (let version in actions[actionName]) {
-            let action = actions[actionName][version]
-            let parameters = []
-            let required = []
-            let tags = action.tags || []
+        for (const actionName in actions) {
+          for (const version in actions[actionName]) {
+            const action = actions[actionName][version]
+            const parameters = []
+            const required = []
+            const tags = action.tags || []
             // let params = {}
 
             var definition = api.swagger.documentation.definitions[action.name] = {
@@ -100,14 +100,14 @@ module.exports = class SwaggerPlugin extends Initializer {
 
             // TODO: Should leverage some stuff done below.
 
-            for (let key in action.inputs) {
+            for (const key in action.inputs) {
               if (key === 'required' || key === 'optional') {
                 continue
               }
-              let input = action.inputs[key]
+              const input = action.inputs[key]
               api.swagger.documentation.parameters['action_' + action.name + version + '_' + key] = {
                 name: key,
-                'in': input.paramType || 'query',
+                in: input.paramType || 'query',
                 type: input.dataType || 'string',
                 enum: input.enum || undefined,
                 description: input.description || undefined,
@@ -128,11 +128,11 @@ module.exports = class SwaggerPlugin extends Initializer {
               definition.required = required
             }
 
-            for (let key in action.headers) {
-              let input = action.headers[key]
+            for (const key in action.headers) {
+              const input = action.headers[key]
               api.swagger.documentation.parameters['action_' + action.name + version + '_' + key] = {
                 name: key,
-                'in': 'header',
+                in: 'header',
                 type: 'string',
                 enum: input.enum || undefined,
                 description: input.description || undefined,
@@ -171,9 +171,9 @@ module.exports = class SwaggerPlugin extends Initializer {
             }
 
             for (let k = 0, len = verbs.length; k < len; k++) {
-              let method = verbs[k]
+              const method = verbs[k]
 
-              let params = []
+              const params = []
               parameters.forEach(function (p) {
                 params.push(p)
               })
@@ -184,7 +184,7 @@ module.exports = class SwaggerPlugin extends Initializer {
                   if (action.modelSchema) {
                     params.push({
                       name: 'body',
-                      'in': 'body',
+                      in: 'body',
                       description: 'Body of the post/put action',
                       schema: {
                         $ref: '#/definitions/action_' + action.name + version
@@ -193,7 +193,7 @@ module.exports = class SwaggerPlugin extends Initializer {
                   } else {
                     params.push({
                       name: 'body',
-                      'in': 'body',
+                      in: 'body',
                       description: 'Body of the post/put action',
                       schema: {
                         type: 'object'
@@ -211,10 +211,10 @@ module.exports = class SwaggerPlugin extends Initializer {
         }
 
         if (config.routes && config.swagger.documentConfigRoutes !== false) {
-          for (let method in config.routes) {
-            let routes = config.routes[method]
+          for (const method in config.routes) {
+            const routes = config.routes[method]
             for (let l = 0, len1 = routes.length; l < len1; l++) {
-              let route = routes[l]
+              const route = routes[l]
 
               let shouldSkip = false
               for (let i = 0; i < config.swagger.ignoreRoutes.length; ++i) {
@@ -223,15 +223,15 @@ module.exports = class SwaggerPlugin extends Initializer {
               }
               if (shouldSkip) { continue }
 
-              let actionByVersion = actions[route.action]
-              for (let version in actionByVersion) {
-                let action = actionByVersion[version]
-                let parameters = []
-                let required = []
+              const actionByVersion = actions[route.action]
+              for (const version in actionByVersion) {
+                const action = actionByVersion[version]
+                const parameters = []
+                const required = []
 
-                let tags = action.tags || []
-                for (let i in config.swagger.routeTags) {
-                  for (let r in config.swagger.routeTags[i]) {
+                const tags = action.tags || []
+                for (const i in config.swagger.routeTags) {
+                  for (const r in config.swagger.routeTags[i]) {
                     if (route.path.indexOf(config.swagger.routeTags[i][r]) > 0) {
                       tags.push(i)
                       break
@@ -246,9 +246,9 @@ module.exports = class SwaggerPlugin extends Initializer {
                 // This works well for simple query paths etc, but we need some additional checks
                 // for any routes since a lot of parameters may overlap.
 
-                let params = {}
+                const params = {}
 
-                let path = route.path.replace(/\/:([\w]*)/g, function (match, p1) {
+                const path = route.path.replace(/\/:([\w]*)/g, function (match, p1) {
                   if (p1 === 'apiVersion') {
                     return '/' + version
                   }
@@ -264,7 +264,7 @@ module.exports = class SwaggerPlugin extends Initializer {
                   })
                   api.swagger.documentation.parameters[route.action + version + '_' + p1 + '_path'] = {
                     name: p1,
-                    'in': 'path',
+                    in: 'path',
                     type: 'string'
                   }
                   return '/{' + p1 + '}'
@@ -274,21 +274,21 @@ module.exports = class SwaggerPlugin extends Initializer {
                   api.swagger.documentation.paths['' + path] = {}
                 }
 
-                for (let key in action.inputs) {
+                for (const key in action.inputs) {
                   if (key === 'required' || key === 'optional') {
                     continue
                   }
-                  let input = action.inputs[key]
+                  const input = action.inputs[key]
 
                   // Unlike simple routes above, we'll need to distinguish between a path type
                   // (param for url portion) and then a query type (param for query string).
 
-                  let paramType = input.paramType || (params[key] ? 'path' : 'query')
-                  let paramStr = route.action + version + '_' + paramType + '_' + key
+                  const paramType = input.paramType || (params[key] ? 'path' : 'query')
+                  const paramStr = route.action + version + '_' + paramType + '_' + key
                   if (input.paramType !== 'body') {
                     api.swagger.documentation.parameters[paramStr] = {
                       name: key,
-                      'in': input.paramType || (params[key] ? 'path' : 'query'),
+                      in: input.paramType || (params[key] ? 'path' : 'query'),
                       type: input.dataType || 'string',
                       enum: input.enum || undefined,
                       description: input.description || undefined,
@@ -310,11 +310,11 @@ module.exports = class SwaggerPlugin extends Initializer {
                   definition.required = required
                 }
 
-                for (let key in action.headers) {
-                  let input = action.headers[key]
+                for (const key in action.headers) {
+                  const input = action.headers[key]
                   api.swagger.documentation.parameters[route.action + version + '_' + key] = {
                     name: key,
-                    'in': 'header',
+                    in: 'header',
                     type: 'string',
                     enum: input.enum || undefined,
                     description: input.description || undefined,
@@ -346,7 +346,7 @@ module.exports = class SwaggerPlugin extends Initializer {
                     if (action.modelSchema) {
                       parameters.push({
                         name: 'body',
-                        'in': 'body',
+                        in: 'body',
                         description: 'Body of the post/put action',
                         schema: {
                           $ref: '#/definitions/' + action.name + version
@@ -355,7 +355,7 @@ module.exports = class SwaggerPlugin extends Initializer {
                     } else {
                       parameters.push({
                         name: 'body',
-                        'in': 'body',
+                        in: 'body',
                         description: 'Body of the post/put action',
                         schema: {
                           type: 'object'
