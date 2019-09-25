@@ -1,6 +1,9 @@
 'use strict'
-
-const { Initializer, api } = require('actionhero')
+const directoriesToSearch = [process.cwd()]
+const actionHeroInstanceIndexPath = require.resolve('actionhero', {
+  paths: directoriesToSearch
+})
+const { Initializer, api } = require(actionHeroInstanceIndexPath)
 
 module.exports = class SwaggerPlugin extends Initializer {
   constructor () {

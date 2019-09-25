@@ -1,5 +1,9 @@
 'use strict'
-const { api, Action } = require('actionhero')
+const directoriesToSearch = [process.cwd()]
+const actionHeroInstanceIndexPath = require.resolve('actionhero', {
+  paths: directoriesToSearch
+})
+const { api, Action } = require(actionHeroInstanceIndexPath)
 
 module.exports = class SwaggerAction extends Action {
   constructor () {
