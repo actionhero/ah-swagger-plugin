@@ -7,7 +7,8 @@
     "pretest": "standard",
     "test": "jest",
     "start": "NODE_ENV=development webpack-dev-server --mode development",
-    "build": "NODE_ENV=production webpack --mode production"
+    "build": "NODE_ENV=production webpack --mode production",
+    "ui:watch": "NODE_ENV=production webpack --progress --colors --watch --mode development"
   },
   "repository": {
     "type": "git",
